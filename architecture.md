@@ -116,10 +116,20 @@ unique per tenant, stored in the main database or the tenant's own.
   authenticator are routed through setup at their next login — and any
   user can opt in or out from their profile (out only if the company
   does not mandate it).
-- **Sessions**: JWTs embed the user's security stamp; password changes,
-  deactivation and 2FA changes rotate the stamp, killing every
-  outstanding token. Failed logins trip a temporary lockout (423), and
-  wrong login vs wrong password are indistinguishable (401).
+- **Sessions**: login returns an access/refresh token pair. Access JWTs
+  embed the user's security stamp; password changes, deactivation and
+  2FA changes rotate the stamp, killing every outstanding token.
+  Refresh tokens are stored only as SHA-256 hashes and **rotate on every
+  use** — reusing a consumed token is treated as theft and revokes all
+  of that user's sessions. `POST /auth/token/refresh` exchanges the
+  pair, `POST /auth/logout` revokes one. Failed logins trip a temporary
+  lockout (423), and wrong login vs wrong password are indistinguishable
+  (401).
+- **Onboarding**: one `register` call creates the company and its admin.
+  Admin rights are transferable later — admins create and list team
+  members (`/auth/users`), grant or revoke admin
+  (`PUT /auth/users/{id}/admin`, never on themselves so a tenant cannot
+  lose its last admin), and users change passwords at `/auth/password`.
 - Handlers take the `CurrentUser` extractor to require authentication.
 
 ## Error model

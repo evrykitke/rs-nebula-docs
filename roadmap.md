@@ -35,6 +35,8 @@ Authentication (done, 2026-07):
 - [x] Company registration: tenant + admin account from the registration email/password
 - [x] Company-mandated 2FA (`tenants.require_two_factor`) and per-user opt-in
 - [x] JWT sessions with security-stamp invalidation; login/two-factor/profile endpoints
+- [x] Refresh tokens: hashed at rest, rotation on use, reuse detection revoking all sessions, logout
+- [x] Team onboarding: admin creates/lists users, transferable admin rights (self-demotion blocked), change password
 
 Next milestones, in intended order:
 
