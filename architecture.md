@@ -94,6 +94,34 @@ When enabled:
 - `TenantManager` (from `ModuleContext::tenants()`) exposes directory
   lookups and tenant creation with name validation and duplicate checks.
 
+## Authentication
+
+`AuthModule` gives every application a complete auth surface. The user
+entity is deliberately exhaustive: identity, Argon2id password hash,
+confirmation/reset tokens, a security stamp, lockout accounting,
+two-factor state, preferences (language, time zone) and soft delete —
+unique per tenant, stored in the main database or the tenant's own.
+
+- **Company registration** (`POST /auth/register`): in multitenant mode
+  the email and password given at registration create the tenant *and*
+  its admin account in one step.
+- **Login** (`POST /auth/login`): answers `success` with a JWT access
+  token, `two_factor_required`, or `two_factor_setup_required` — the
+  latter two with a short-lived bridge token that is useless anywhere
+  except the two-factor endpoints.
+- **Two-factor** is TOTP (RFC 6238) for authenticator apps: setup returns
+  the secret and `otpauth://` URL, confirmation returns ten single-use
+  recovery codes (stored hashed). A company can mandate 2FA for all its
+  users (`POST /auth/tenant/two-factor`, admins only) — users without an
+  authenticator are routed through setup at their next login — and any
+  user can opt in or out from their profile (out only if the company
+  does not mandate it).
+- **Sessions**: JWTs embed the user's security stamp; password changes,
+  deactivation and 2FA changes rotate the stamp, killing every
+  outstanding token. Failed logins trip a temporary lockout (423), and
+  wrong login vs wrong password are indistinguishable (401).
+- Handlers take the `CurrentUser` extractor to require authentication.
+
 ## Error model
 
 `nebula::Error` is the framework-wide error enum (Validation, Unauthorized,

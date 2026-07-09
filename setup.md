@@ -65,6 +65,14 @@ that prints `***` in logs and debug output.
 Business reference data is configuration too — the currency table lives
 under `currencies:` in the environment file, not in code.
 
+The auth module additionally needs a signing secret (any long random
+string) in the local overlay:
+
+```yaml
+auth:
+  jwt_secret: "<long random string>"
+```
+
 ## Running database tests
 
 Integration tests that need PostgreSQL read `NEBULA_TEST_DATABASE_URL`

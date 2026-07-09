@@ -77,6 +77,24 @@ request
      handler extracts CurrentTenant (identity) and TenantDb (connection)
 ```
 
+## Login flow
+
+```
+POST /auth/login {login, password}
+  │  (tenant context from the X-Tenant header, as everywhere)
+  ├─ bad credentials ──────────── 401 (enumeration-safe)
+  ├─ repeated failures ────────── 423 locked (temporary)
+  ├─ user has an authenticator ── {status: two_factor_required, two_factor_token}
+  │      └─ POST /auth/login/two-factor {code}   code = TOTP or recovery code
+  │            └─ {status: success, access_token}
+  ├─ company mandates 2FA, none set up
+  │      └─ {status: two_factor_setup_required, two_factor_token}
+  │            └─ POST /auth/two-factor/setup → secret + otpauth:// URL
+  │            └─ POST /auth/two-factor/confirm {code} → recovery codes
+  │            └─ log in again
+  └─ otherwise ────────────────── {status: success, access_token}
+```
+
 ## Future flows (as subsystems land)
 
 - **Events**: domain events published in-process; integration events via RabbitMQ.

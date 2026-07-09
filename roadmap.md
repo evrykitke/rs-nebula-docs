@@ -28,11 +28,19 @@ Multitenancy (done, 2026-07):
 - [x] Boot migrates directory, main database and every active tenant database (`auto_migrate`)
 - [x] Toggleable via `multitenancy.enabled` for self-hosted single-database deployments
 
+Authentication (done, 2026-07):
+
+- [x] Exhaustive user entity (identity, Argon2id credentials, lockout, 2FA state, preferences, soft delete), per-tenant unique
+- [x] TOTP two-factor for authenticator apps + hashed single-use recovery codes
+- [x] Company registration: tenant + admin account from the registration email/password
+- [x] Company-mandated 2FA (`tenants.require_two_factor`) and per-user opt-in
+- [x] JWT sessions with security-stamp invalidation; login/two-factor/profile endpoints
+
 Next milestones, in intended order:
 
-1. **Authentication & authorization** — users, roles, permissions in the
-   ASP.NET Zero style (`Pages.Administration.Users.Edit`, ...), role-based
-   with per-user overrides; JWT sessions.
+1. **Authorization** — roles and permissions in the ASP.NET Zero style
+   (`Pages.Administration.Users.Edit`, ...), role-based with per-user
+   overrides, replacing the interim `is_tenant_admin` flag.
 2. **Audit logging** — entity snapshots (before/after) on every mutation.
 3. **Background jobs** — Apalis workers for long-running processes.
 4. **Events** — in-process domain events; RabbitMQ integration events.
