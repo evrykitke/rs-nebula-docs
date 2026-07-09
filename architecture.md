@@ -70,6 +70,30 @@ only `checked_add`/`checked_sub` exist. Rounding is explicit banker's
 rounding to minor units; `allocate(n)` splits an amount into parts that
 differ by at most one minor unit and always sum back to the whole.
 
+## Multitenancy
+
+Toggleable with `multitenancy.enabled` — off means single-tenant against
+the main database (self-hosted mode), with zero tenancy overhead.
+
+When enabled:
+
+- The main database holds the **tenant directory** (`tenants` table,
+  created by framework-owned migrations tracked separately in
+  `nebula_migrations`).
+- Each tenant may carry its own connection string (database-per-tenant)
+  or none, in which case it shares the main database.
+- A request names its tenant in a header (`multitenancy.header`, default
+  `X-Tenant`). The middleware resolves it against the directory: unknown
+  tenants get 404, inactive ones 403, both as problem+json. No header
+  means host context.
+- Handlers use the `CurrentTenant` extractor for identity and `TenantDb`
+  for the right connection — the tenant's own pool (created lazily,
+  cached) or the main database.
+- With `auto_migrate` on, boot migrates the directory, the main database,
+  and every active tenant database.
+- `TenantManager` (from `ModuleContext::tenants()`) exposes directory
+  lookups and tenant creation with name validation and duplicate checks.
+
 ## Error model
 
 `nebula::Error` is the framework-wide error enum (Validation, Unauthorized,
@@ -87,6 +111,5 @@ Forbidden, NotFound, Conflict, Internal, ...). It implements
 
 ## Planned (see roadmap.md)
 
-Multitenancy (database per tenant + directory database, toggleable),
 ABP-Zero-style permissions, audit logs with entity snapshots, Apalis jobs,
 RabbitMQ events, Redis caching.

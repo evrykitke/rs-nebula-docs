@@ -56,8 +56,28 @@ defaults  <  {env}.yaml  <  {env}.local.yaml (gitignored)  <  NEBULA__* env vars
 travel only through the local overlay or the environment and are held in
 `Secret`, which redacts itself in Debug/Display output.
 
+## Tenant resolution (when multitenancy is enabled)
+
+```
+request
+  │
+  ├─ no tenant header ──────────── host context: main database
+  │
+  └─ X-Tenant: <name>
+       │
+       ▼
+     directory lookup (main db)
+       ├─ unknown ───────────────── 404 problem+json
+       ├─ inactive ──────────────── 403 problem+json
+       └─ active
+            ├─ has connection_string → tenant's own pool (lazy, cached)
+            └─ none ─────────────────→ shared main database
+       │
+       ▼
+     handler extracts CurrentTenant (identity) and TenantDb (connection)
+```
+
 ## Future flows (as subsystems land)
 
 - **Events**: domain events published in-process; integration events via RabbitMQ.
 - **Jobs**: long-running work handed to Apalis workers, never done in request handlers.
-- **Multitenancy**: request → tenant resolution (directory DB) → tenant-scoped connection.
