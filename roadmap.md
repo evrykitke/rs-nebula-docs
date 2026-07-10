@@ -80,6 +80,26 @@ Background jobs (done, 2026-07):
 - [x] Tenant migration job: existing tenants pick up new features
       without a restart; `POST /auth/tenant/migrate`, audited
 
+Frontend pipeline (done, 2026-07):
+
+- [x] Per-module OpenAPI contributions (`ModuleContext::add_api`) merged
+      into the document at `/api-docs/openapi.json` — new modules'
+      endpoints reach client generators without any wiring
+- [x] Configurable CORS (`server.cors_origins`) for browser frontends
+- [x] Angular client ([ng-nebula](https://github.com/evrykitke/ng-nebula)):
+      NSwag service proxies regenerated from a running server with one
+      command (`npm run generate-proxies`)
+- [x] Real authentication: tenant-header login, refresh-token rotation
+      with a one-shot 401 retry, permissions fetched from
+      `/auth/me/permissions`, both two-factor branches (code entry and
+      company-mandated inline enrollment with QR + recovery codes)
+- [x] Declarative data-table primitive (`TableConfig` + `ColumnBuilder`
+      + `TableDataSource`) reused by every entity list
+- [x] Administration pages: users, per-user roles and grant/deny
+      overrides, roles with a searchable permission tree, audit trail
+      with a what-changed diff, tenant settings (2FA mandate, audit
+      retention, on-demand migration), and a profile page
+
 Next milestones, in intended order:
 
 1. **Events** — in-process domain events; RabbitMQ integration events.
@@ -88,6 +108,4 @@ Next milestones, in intended order:
    `{slug}-{key}` (e.g. `acme-5jy78k`), migrated by the tenant
    migration job at creation.
 4. **Caching** — Redis-backed cache abstraction.
-5. **Frontend pipeline** — Angular frontend with NSwag service proxies
-   generated from `/api-docs/openapi.json`, RxJS interactivity.
-6. **Tooling** — scaffolding CLI for repetitive tasks (after the above are stable).
+5. **Tooling** — scaffolding CLI for repetitive tasks (after the above are stable).

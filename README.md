@@ -11,6 +11,7 @@ inspired by ASP.NET Boilerplate.
 | [Setup](setup.md) | Prerequisites, project layout, first run, configuration layers, running database tests |
 | [Architecture](architecture.md) | Guiding principles, workspace crates, kernel & module system, web defaults, database layer, Money, error model, precision rules |
 | [Dataflow](dataflow.md) | Request lifecycle through the middleware stack, boot sequence, configuration flow, future flows |
+| [Frontend](frontend.md) | OpenAPI assembly from modules, NSwag proxy generation, CORS, the Angular client |
 | [Roadmap](roadmap.md) | Completed milestones and what comes next |
 
 ## Quick links
