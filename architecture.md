@@ -201,6 +201,44 @@ their window (every `audit.prune_interval_secs`). The system default is
 months). Audit writes are failure-contained: a broken audit store logs
 an error but never fails the mutation it describes.
 
+## Background jobs
+
+Long-running work leaves the request path through [apalis] workers on
+Redis-backed queues. Enable with `jobs.enabled` (workers connect through
+`redis.url`; boot fails fast when Redis is unreachable), and the kernel
+runs the worker monitor alongside the web host with graceful shutdown.
+
+- **Enqueue from handlers** through the `Jobs` client in request
+  extensions: `jobs.enqueue("emails", SendEmail { .. }).await?` — jobs
+  are serialized to Redis and survive restarts; a crashed worker's job
+  is re-queued after a visibility timeout.
+- **Contribute workers from modules** in `configure`:
+
+  ```rust
+  let jobs = ctx.jobs().expect("requires jobs.enabled");
+  let storage = jobs.storage::<SendEmail>("emails");
+  ctx.add_worker(move |monitor| {
+      monitor.register(
+          WorkerBuilder::new("emails")
+              .backend(storage)
+              .build_fn(send_email),
+      )
+  });
+  ```
+
+Built-in workers:
+
+- **Audit retention pruner** — the pruning pass runs as a cron worker on
+  `audit.prune_interval_secs` (when jobs are disabled it falls back to a
+  plain in-process interval, so retention holds either way).
+- **Tenant migrations** — `MigrateTenants` rolls framework and
+  application migrations across tenant databases *without a restart*,
+  so existing tenants pick up newly deployed features immediately.
+  `POST /auth/tenant/migrate` (tenant-settings permission) queues it for
+  the caller's tenant; the queue action is recorded in the audit trail.
+
+[apalis]: https://crates.io/crates/apalis
+
 ## Error model
 
 `nebula::Error` is the framework-wide error enum (Validation, Unauthorized,

@@ -69,17 +69,25 @@ Audit logging (done, 2026-07):
       capped at six months
 - [x] Configuration moved to a `config/` folder
 
+Background jobs (done, 2026-07):
+
+- [x] Apalis workers on Redis-backed queues (`jobs.enabled`), monitor
+      run by the kernel alongside the web host
+- [x] `Jobs` client in request extensions for enqueueing; modules
+      contribute workers via `ModuleContext::add_worker`
+- [x] Audit retention pruner as a cron worker (in-process interval
+      fallback when jobs are disabled)
+- [x] Tenant migration job: existing tenants pick up new features
+      without a restart; `POST /auth/tenant/migrate`, audited
+
 Next milestones, in intended order:
 
-1. **Background jobs** — Apalis workers for long-running processes,
-   including a tenant-migration job that rolls new framework/app
-   migrations across existing tenant databases without a restart
-   (today they run at boot).
-2. **Events** — in-process domain events; RabbitMQ integration events.
-3. **File storage** — tenant uploads under `public/{tenant-id}/`.
-4. **Tenant database provisioning** — generated tenant databases named
-   `{slug}-{key}` (e.g. `acme-5jy78k`).
-5. **Caching** — Redis-backed cache abstraction.
-6. **Frontend pipeline** — Angular frontend with NSwag service proxies
+1. **Events** — in-process domain events; RabbitMQ integration events.
+2. **File storage** — tenant uploads under `public/{tenant-id}/`.
+3. **Tenant database provisioning** — generated tenant databases named
+   `{slug}-{key}` (e.g. `acme-5jy78k`), migrated by the tenant
+   migration job at creation.
+4. **Caching** — Redis-backed cache abstraction.
+5. **Frontend pipeline** — Angular frontend with NSwag service proxies
    generated from `/api-docs/openapi.json`, RxJS interactivity.
-7. **Tooling** — scaffolding CLI for repetitive tasks (after the above are stable).
+6. **Tooling** — scaffolding CLI for repetitive tasks (after the above are stable).
