@@ -67,11 +67,17 @@ Every application gets, with zero code:
 ## Money
 
 `nebula::Money` = exact `Decimal` amount + ISO 4217 `Currency` (with minor
-units: KES/USD 2, JPY 0, BHD 3). Currencies are not hardcoded: the
-application declares them under `currencies:` in its environment yaml and
-the kernel builds a `CurrencyRegistry` from it at boot
-(`ModuleContext::currencies()`). Cross-currency arithmetic is an error —
-only `checked_add`/`checked_sub` exist. Rounding is explicit banker's
+units: KES/USD 2, JPY 0, BHD 3). Currencies are not hardcoded: they live
+in the `currencies` table, pre-populated by a framework migration with
+the world's currencies as **system rows that cannot be deleted**.
+`CurrencyModule` exposes them — `GET /currencies` is anonymous (the
+onboarding form needs it before any account exists), while adding a
+deployment-specific unit (`POST`) and deleting one (`DELETE`) require
+the tenant-settings permission. The kernel builds a `CurrencyRegistry`
+from the table at boot (`ModuleContext::currencies()`); entries under
+`currencies:` in the environment yaml are folded in on top for
+app-specific units. Cross-currency arithmetic is an error — only
+`checked_add`/`checked_sub` exist. Rounding is explicit banker's
 rounding to minor units; `allocate(n)` splits an amount into parts that
 differ by at most one minor unit and always sum back to the whole.
 
@@ -109,7 +115,16 @@ unique per tenant, stored in the main database or the tenant's own.
 
 - **Company registration** (`POST /auth/register`): in multitenant mode
   the email and password given at registration create the tenant *and*
-  its admin account in one step.
+  its admin account in one step, optionally with the currency the
+  company operates in (validated against the currency table).
+- **Company profile** (`/auth/tenant/profile`): display name, tax
+  registration identifiers (tax PIN, VAT number) and the default
+  currency. Readable by any user of the tenant; editing requires the
+  tenant-settings permission. `POST /auth/tenant/logo` uploads the
+  company logo (png/jpg/svg/webp, ≤ 1 MiB) to
+  `{files.root}/{tenant-id}/`, served back at `/public/{tenant-id}/…` —
+  the `files.root` directory (default `public/`) is mounted read-only at
+  `/public` by the web layer.
 - **Login** (`POST /auth/login`): answers `success` with a JWT access
   token, `two_factor_required`, or `two_factor_setup_required` — the
   latter two with a short-lived bridge token that is useless anywhere

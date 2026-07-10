@@ -68,7 +68,8 @@ An empty list (the default) disables CORS entirely.
 
 - **Onboarding** — `/register` creates a company and its admin account
   in one form (the workspace identifier is derived from the company
-  name), then signs the new admin straight in.
+  name, and the company's currency is picked from the anonymous
+  `GET /currencies` list), then signs the new admin straight in.
 - **Authentication** — users sign in with credentials alone: the server
   resolves the workspace through the login directory and every login
   response names it, which the client adopts for the tenant header. If
@@ -82,7 +83,17 @@ An empty list (the default) disables CORS entirely.
   `ColumnBuilder` columns, row actions, feature toggles) rendered by a
   reusable `<app-data-table>` driven by a `TableDataSource` that maps a
   table query onto the module's list endpoint.
+- **Lookups** — `<app-lookup>` is the searchable reference-picker input:
+  an input-like trigger opening a small server-driven table in a CDK
+  overlay (anchored to the field, flipped above when there is no room).
+  Each reference entity declares a shared `LookupConfig` in
+  `entity-lookups.ts` (data source, columns, key/display, optional
+  quick-add), so every form selects, say, a currency through the same
+  control.
 - **Administration pages** — users, per-user roles and grant/deny
   overrides, roles with the permission tree from `/auth/permissions`,
   the audit trail (rows expand inline to the request context and change
-  set; a full timeline page per entry), and tenant settings.
+  set; a full timeline page per entry), and tenant settings: the company
+  information card (display name, logo upload with preview, tax PIN,
+  VAT number, default currency via the lookup), the 2FA mandate and the
+  audit retention override.
