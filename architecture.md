@@ -57,6 +57,11 @@ Every application gets, with zero code:
 - Migrations: applications register a SeaORM migrator with
   `KernelBuilder::with_migrations::<M>()`; pending migrations run at boot
   when `database.auto_migrate` is on.
+- Framework entities (tenants, users, roles, refresh tokens, permission
+  grants, the login directory) key on application-generated UUIDv4
+  primary keys — ids leak no ordinal information and stay unique across
+  tenant databases. The exception is the audit trail, which keeps a
+  bigserial id: its rows are append-only log lines, not domain entities.
 - `/health/ready` reports database state and returns 503 while it is down.
 
 ## Money
