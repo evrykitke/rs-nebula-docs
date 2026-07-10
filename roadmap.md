@@ -38,15 +38,27 @@ Authentication (done, 2026-07):
 - [x] Refresh tokens: hashed at rest, rotation on use, reuse detection revoking all sessions, logout
 - [x] Team onboarding: admin creates/lists users, transferable admin rights (self-demotion blocked), change password
 
+Authorization (done, 2026-07):
+
+- [x] Hierarchical permission definitions in the ASP.NET Zero style
+      (`Pages.Administration.Users.Edit`, ...) contributed by modules,
+      validated into a registry at boot
+- [x] Roles with permission grants; static `Admin` role (implicitly all
+      permissions, undeletable) seeded and assigned at registration
+- [x] Per-user overrides: explicit grant without a role, explicit deny
+      that beats every role grant
+- [x] `Authz` extractor — `authz.require(names::USERS_EDIT).await?`
+- [x] Management endpoints: role CRUD, user role assignment, per-user
+      overrides, permission tree, caller's effective permissions
+- [x] Admin endpoints guarded by permissions (interim admin flag retired
+      from guards); nobody can edit their own roles or overrides
+
 Next milestones, in intended order:
 
-1. **Authorization** — roles and permissions in the ASP.NET Zero style
-   (`Pages.Administration.Users.Edit`, ...), role-based with per-user
-   overrides, replacing the interim `is_tenant_admin` flag.
-2. **Audit logging** — entity snapshots (before/after) on every mutation.
-3. **Background jobs** — Apalis workers for long-running processes.
-4. **Events** — in-process domain events; RabbitMQ integration events.
-5. **Caching** — Redis-backed cache abstraction.
-6. **Frontend pipeline** — Angular frontend with NSwag service proxies
+1. **Audit logging** — entity snapshots (before/after) on every mutation.
+2. **Background jobs** — Apalis workers for long-running processes.
+3. **Events** — in-process domain events; RabbitMQ integration events.
+4. **Caching** — Redis-backed cache abstraction.
+5. **Frontend pipeline** — Angular frontend with NSwag service proxies
    generated from `/api-docs/openapi.json`, RxJS interactivity.
-7. **Tooling** — scaffolding CLI for repetitive tasks (after the above are stable).
+6. **Tooling** — scaffolding CLI for repetitive tasks (after the above are stable).

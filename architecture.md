@@ -132,6 +132,38 @@ unique per tenant, stored in the main database or the tenant's own.
   lose its last admin), and users change passwords at `/auth/password`.
 - Handlers take the `CurrentUser` extractor to require authentication.
 
+## Authorization
+
+Roles and permissions in the ASP.NET Zero style, on top of the user
+entity above.
+
+- **Permissions are defined in code**: modules contribute trees of
+  hierarchical dot-named `PermissionDef`s
+  (`Pages.Administration.Users.Edit`, ...) via
+  `ModuleContext::add_permissions`. The kernel validates all trees into
+  a single registry at boot — duplicate or malformed names fail fast.
+  Granting a parent never implicitly grants its children; every grant
+  is explicit.
+- **Roles carry grants in the database**. Each tenant has its own
+  roles. The static `Admin` role is seeded at registration, assigned to
+  the registering user, implicitly holds every permission and cannot be
+  deleted — so a fresh company is fully able to administer itself.
+- **Per-user overrides**: a user can be granted a permission no role
+  gives them, or denied one their roles grant. Resolution order: the
+  user override decides first (deny beats grant), then static-role
+  membership, then role grants.
+- **Handlers check with the `Authz` extractor**:
+  `authz.require(names::USERS_EDIT).await?` answers 403 when the
+  permission is missing and 500 when the name was never defined (a typo
+  must never silently pass or deny).
+- **Management endpoints**: role CRUD with grants (`/auth/roles`), user
+  role assignment (`PUT /auth/users/{id}/roles`), per-user overrides
+  (`/auth/users/{id}/permissions`), the definition tree
+  (`GET /auth/permissions`) and the caller's effective set
+  (`GET /auth/me/permissions`). Users cannot edit their own roles or
+  overrides, and admin rights (`PUT /auth/users/{id}/admin`) are never
+  self-revocable — a tenant cannot lose its last admin by accident.
+
 ## Error model
 
 `nebula::Error` is the framework-wide error enum (Validation, Unauthorized,
@@ -149,5 +181,5 @@ Forbidden, NotFound, Conflict, Internal, ...). It implements
 
 ## Planned (see roadmap.md)
 
-ABP-Zero-style permissions, audit logs with entity snapshots, Apalis jobs,
-RabbitMQ events, Redis caching.
+Audit logs with entity snapshots, Apalis jobs, RabbitMQ events, Redis
+caching.
