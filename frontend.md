@@ -82,4 +82,5 @@ An empty list (the default) disables CORS entirely.
   table query onto the module's list endpoint.
 - **Administration pages** — users, per-user roles and grant/deny
   overrides, roles with the permission tree from `/auth/permissions`,
-  the audit trail with its field-level diff, and tenant settings.
+  the audit trail (rows expand inline to the request context and change
+  set; a full timeline page per entry), and tenant settings.

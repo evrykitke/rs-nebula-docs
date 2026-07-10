@@ -97,8 +97,8 @@ Frontend pipeline (done, 2026-07):
       + `TableDataSource`) reused by every entity list
 - [x] Administration pages: users, per-user roles and grant/deny
       overrides, roles with a searchable permission tree, audit trail
-      with a what-changed diff, tenant settings (2FA mandate, audit
-      retention, on-demand migration), and a profile page
+      with expandable row details and a what-changed diff, tenant
+      settings (2FA mandate, audit retention), and a profile page
 
 Sign-in & onboarding (done, 2026-07):
 
