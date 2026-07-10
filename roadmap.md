@@ -100,6 +100,18 @@ Frontend pipeline (done, 2026-07):
       with a what-changed diff, tenant settings (2FA mandate, audit
       retention, on-demand migration), and a profile page
 
+Sign-in & onboarding (done, 2026-07):
+
+- [x] Credential-resolved sign-in: a main-database login directory
+      (`user_directory`, backfilled from existing users) maps normalized
+      logins to tenants, so `POST /auth/login` needs no tenant header —
+      one match signs in directly, several answer `tenant_selection`
+      for a scoped retry, and every response names the resolved tenant
+- [x] Client sign-in without a workspace field, with a workspace picker
+      for ambiguous credentials
+- [x] Company onboarding page (`/register`): company name with a derived
+      workspace identifier and the admin account, signed in on completion
+
 Next milestones, in intended order:
 
 1. **Events** — in-process domain events; RabbitMQ integration events.

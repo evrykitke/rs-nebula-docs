@@ -64,11 +64,18 @@ An empty list (the default) disables CORS entirely.
 
 ## What the client does with it
 
-- **Authentication** — `POST /auth/login` with the tenant header;
-  permissions come from `GET /auth/me/permissions` (they are not in the
-  JWT). Refresh tokens rotate; a 401 triggers one transparent
-  refresh-and-retry. Both two-factor branches are handled: code entry,
-  and company-mandated enrollment during sign-in.
+- **Onboarding** — `/register` creates a company and its admin account
+  in one form (the workspace identifier is derived from the company
+  name), then signs the new admin straight in.
+- **Authentication** — users sign in with credentials alone: the server
+  resolves the workspace through the login directory and every login
+  response names it, which the client adopts for the tenant header. If
+  the same credentials exist in several companies the user picks the
+  workspace from the `tenant_selection` answer. Permissions come from
+  `GET /auth/me/permissions` (they are not in the JWT). Refresh tokens
+  rotate; a 401 triggers one transparent refresh-and-retry. Both
+  two-factor branches are handled: code entry, and company-mandated
+  enrollment during sign-in.
 - **Tables** — entity lists declare a `TableConfig` (fluent
   `ColumnBuilder` columns, row actions, feature toggles) rendered by a
   reusable `<app-data-table>` driven by a `TableDataSource` that maps a
