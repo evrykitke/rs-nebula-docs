@@ -42,9 +42,11 @@ npm run generate-proxies
 The script pulls `/api-docs/openapi.json` into `openapi.json`, runs
 NSwag with the Angular template (Luxon dates, one `…ServiceProxy` class
 per tag, an `API_BASE_URL` injection token), and applies post-generation
-fixes. Both the document and the generated `service-proxies.ts` are
-committed, so API changes show up in code review and builds do not need
-a live server.
+fixes — notably wiring a JSON reviver into every proxy so fields typed
+as Luxon `DateTime` really are `DateTime` at runtime (the interface-DTO
+template otherwise leaves them as raw ISO strings). Both the document
+and the generated `service-proxies.ts` are committed, so API changes
+show up in code review and builds do not need a live server.
 
 When a new backend module lands, regenerating the clients is that same
 single command.
