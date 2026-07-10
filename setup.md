@@ -36,20 +36,20 @@ Then open:
 | `crates/nebula` | The framework library |
 | `crates/nebula-server` | Host binary bootstrapped by the kernel |
 | `crates/nebula-tests` | Proof-of-concept test suite |
-| `dev.yaml` / `test.yaml` / `prod.yaml` | Environment configuration |
+| `config/` | Environment configuration (`dev.yaml`, `test.yaml`, `prod.yaml`) |
 | `docker-compose.yml` | Optional Redis + RabbitMQ for local development |
 
 ## Configuration
 
-Configuration is layered; later layers win:
+Configuration lives in the `config/` folder and is layered; later layers win:
 
 1. Built-in defaults
-2. `{env}.yaml` — `dev.yaml`, `test.yaml` or `prod.yaml`, selected by `NEBULA_ENV` (default `dev`)
-3. `{env}.local.yaml` — gitignored overlay for machine-local secrets
+2. `config/{env}.yaml` — `dev.yaml`, `test.yaml` or `prod.yaml`, selected by `NEBULA_ENV` (default `dev`)
+3. `config/{env}.local.yaml` — gitignored overlay for machine-local secrets
 4. `NEBULA__*` environment variables, `__` separates sections: `NEBULA__SERVER__PORT=8080`
 
-Point the framework at your database in `dev.local.yaml` (create it next
-to `dev.yaml`; it is gitignored):
+Point the framework at your database in `config/dev.local.yaml` (create
+it next to `dev.yaml`; it is gitignored):
 
 ```yaml
 database:

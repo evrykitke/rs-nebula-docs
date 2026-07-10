@@ -164,6 +164,43 @@ entity above.
   overrides, and admin rights (`PUT /auth/users/{id}/admin`) are never
   self-revocable — a tenant cannot lose its last admin by accident.
 
+## Audit logging
+
+Who did what, from where, and what really changed — one `audit_logs`
+table carries three kinds of rows, each stamped with the full request
+context: user (from the bearer token), tenant, ip address (proxy header
+or socket), user agent, and the `x-request-id` linking the row to traces.
+
+- **Request rows**: middleware records every mutating HTTP request
+  (POST/PUT/PATCH/DELETE) with status code and duration. Bodies are
+  never read or stored — they can carry passwords. Reads opt in via
+  `audit.include_reads`.
+- **Entity rows**: handlers record `create`/`update`/`delete` with
+  before/after snapshots stored as jsonb, using the `Audit` extractor
+  (`audit.0.updated("user", id, &before, &after).await`). Snapshot the
+  client-safe view of an entity, never the raw row. The built-in auth
+  module snapshots all its admin mutations (users, roles, overrides,
+  tenant policy).
+- **Event rows**: plain human-readable lines without snapshots —
+  "boss logged in", "failed login attempt for x", password changes,
+  2FA toggles — via `Recorder::event`.
+
+Reading the trail (`AuditModule`, guarded by
+`Pages.Administration.AuditLogs.View`, tenant-scoped):
+
+- `GET /audit/logs` — newest first, paged, filterable by `action`,
+  `entity_type`, `user_id`
+- `GET /audit/logs/{id}` — one row with full snapshots
+- `GET /audit/logs/{id}/diff` — the **what-changed view**: a field-level
+  diff listing only the fields that differ between the snapshots
+
+Retention: the trail grows fast, so a background job prunes rows past
+their window (every `audit.prune_interval_secs`). The system default is
+`audit.retention_days` (30); each tenant can override it at
+`PUT /audit/retention` up to `audit.retention_max_days` (180 — six
+months). Audit writes are failure-contained: a broken audit store logs
+an error but never fails the mutation it describes.
+
 ## Error model
 
 `nebula::Error` is the framework-wide error enum (Validation, Unauthorized,

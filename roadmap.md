@@ -53,12 +53,33 @@ Authorization (done, 2026-07):
 - [x] Admin endpoints guarded by permissions (interim admin flag retired
       from guards); nobody can edit their own roles or overrides
 
+Audit logging (done, 2026-07):
+
+- [x] `audit_logs` with full request context: user, tenant, ip address,
+      user agent, request id
+- [x] Request rows for every mutating HTTP request (status, duration;
+      bodies never recorded), reads opt-in
+- [x] Entity rows with before/after jsonb snapshots via the `Audit`
+      extractor; auth admin mutations snapshotted out of the box
+- [x] Event rows — plain human-readable lines (logins, failed attempts,
+      password changes, 2FA toggles) without snapshots
+- [x] Trail endpoints with a field-level what-changed diff view,
+      permission-guarded and tenant-scoped
+- [x] Retention pruning job: 30-day system default, per-tenant override
+      capped at six months
+- [x] Configuration moved to a `config/` folder
+
 Next milestones, in intended order:
 
-1. **Audit logging** — entity snapshots (before/after) on every mutation.
-2. **Background jobs** — Apalis workers for long-running processes.
-3. **Events** — in-process domain events; RabbitMQ integration events.
-4. **Caching** — Redis-backed cache abstraction.
-5. **Frontend pipeline** — Angular frontend with NSwag service proxies
+1. **Background jobs** — Apalis workers for long-running processes,
+   including a tenant-migration job that rolls new framework/app
+   migrations across existing tenant databases without a restart
+   (today they run at boot).
+2. **Events** — in-process domain events; RabbitMQ integration events.
+3. **File storage** — tenant uploads under `public/{tenant-id}/`.
+4. **Tenant database provisioning** — generated tenant databases named
+   `{slug}-{key}` (e.g. `acme-5jy78k`).
+5. **Caching** — Redis-backed cache abstraction.
+6. **Frontend pipeline** — Angular frontend with NSwag service proxies
    generated from `/api-docs/openapi.json`, RxJS interactivity.
-6. **Tooling** — scaffolding CLI for repetitive tasks (after the above are stable).
+7. **Tooling** — scaffolding CLI for repetitive tasks (after the above are stable).

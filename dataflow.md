@@ -33,7 +33,7 @@ PropagateRequestId ── echoes x-request-id on the response
 ## Boot sequence
 
 1. `Kernel::builder().build()`
-   - Load configuration (defaults → `{env}.yaml` → `{env}.local.yaml` → `NEBULA__*` env)
+   - Load configuration (defaults → `config/{env}.yaml` → `config/{env}.local.yaml` → `NEBULA__*` env)
    - Validate configuration — invalid config aborts boot with a clear message
    - Initialize `tracing` (level/format from config; `RUST_LOG` overrides)
 2. `kernel.init()`
@@ -49,7 +49,7 @@ PropagateRequestId ── echoes x-request-id on the response
 ## Configuration flow
 
 ```
-defaults  <  {env}.yaml  <  {env}.local.yaml (gitignored)  <  NEBULA__* env vars
+defaults  <  config/{env}.yaml  <  config/{env}.local.yaml (gitignored)  <  NEBULA__* env vars
 ```
 
 `{env}` is `dev`, `test` or `prod`, selected by `NEBULA_ENV`. Secrets
